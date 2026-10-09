@@ -1,4 +1,4 @@
-# HTX FDE AI Assessment
+# AI Assessment
 
 ## Configure and Run
 
