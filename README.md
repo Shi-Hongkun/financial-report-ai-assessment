@@ -1,18 +1,28 @@
 # HTX FDE AI Assessment
 
-## Setup and Run
+## Configure and Run
 
 Requires Python 3.14 and [uv](https://docs.astral.sh/uv/).
 
 ```powershell
 uv sync --extra pdf-benchmark
 Copy-Item .env.example .env
+# Add your key to GEMINI_API_KEY in .env
+uv run jupyter lab
 ```
 
-Set `GEMINI_API_KEY` in `.env`; keep the file local because it contains credentials. `GEMINI_MODEL` defaults to `gemini-3.8-flash`.
+Run [notebooks/part1_part2.ipynb](notebooks/part1_part2.ipynb) for PDF extraction, prompt engineering, and date reasoning. Run [notebooks/part3.ipynb](notebooks/part3.ipynb) for the multi-agent supervisor; set `PART3_QUERY_TO_RUN` to `revenue_only`, `fund_only`, or `combined`. `GEMINI_MODEL` defaults to `gemini-3.8-flash`. Notebook runs make Gemini API requests and may incur charges. Keep `.env` private.
 
-Open [notebooks/part1.ipynb](notebooks/part1.ipynb) for Parts 1 and 2. [notebooks/part2.ipynb](notebooks/part2.ipynb) is an optional standalone date runner. Part 3's LangGraph supervisor is in [notebooks/part3.ipynb](notebooks/part3.ipynb); set `PART3_QUERY_TO_RUN` to `revenue_only`, `fund_only`, or `combined`. Gemini API requests occur when you run the notebooks; the connection ping is off by default.
+## Design and API
 
-## Scope and Documentation
+- [pdf_extraction.py](src/htx_fde_ai_assessment/pdf_extraction.py) provides page-level extraction with layout-aware loaders.
+- [date_reasoning.py](src/htx_fde_ai_assessment/date_reasoning.py) combines Gemini date extraction/classification with local normalization and validation.
+- [part3_supervisor.py](src/htx_fde_ai_assessment/part3_supervisor.py) builds a LangGraph supervisor that routes revenue and expenditure questions and validates page-grounded evidence and citations.
+- [gemini_client.py](src/htx_fde_ai_assessment/gemini_client.py) loads local configuration and creates Gemini clients through its OpenAI-compatible API.
 
-Current scope: Parts 1-3. Install dependencies with `uv sync --extra pdf-benchmark`. Keep all project documentation short and concise; update this README and [docs/plan.md](docs/plan.md) when major decisions or results change.
+JupyterLab and ipykernel run the notebooks; LangChain handles prompts, tools, and structured output; LangGraph provides conditional agent routing. PyMuPDF and pdfplumber extract PDF text/layout, while python-dotenv loads local configuration. The optional `pdf-benchmark` extra adds Docling, MarkItDown, LangChain Community, and pypdf to compare PDF loaders.
+
+## Project Docs
+
+- [Problem statement](docs/problem_statement.md): assessment context and source files.
+- [Plan and results](docs/plan.md): implementation status, findings, and design decisions.
